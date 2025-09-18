@@ -1,18 +1,20 @@
+// app/dashboard/page.jsx
+import { getUserOnboardingStatus } from "@/actions/user";
+import { getIndustryInsights } from "@/actions/dashboard";
 import { redirect } from "next/navigation";
-import { getUserOnboardingStatus } from "@/lib/getUserOnboardingStatus";
+import DashboardView from "./_components/dashboard-view";
 
-const IndustryInsightspage = async () => {
-  const { isOnboarding } = await getUserOnboardingStatus();
+export default async function DashboardPage() {
+  // Check if user is onboarded
+  const { isOnboarded } = await getUserOnboardingStatus();
+  if (!isOnboarded) redirect("/onboarding");
 
-  if (!isOnboarding) {
-    redirect("/onbording");
-  }
+  // Fetch insights (server-side)
+  const insights = await getIndustryInsights();
 
   return (
-    <div>
-      Industry Insights Page
+    <div className="container mx-auto p-4">
+      <DashboardView insights={insights} />
     </div>
   );
-};
-
-export default IndustryInsightspage;
+}

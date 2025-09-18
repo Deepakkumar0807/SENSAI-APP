@@ -20,6 +20,7 @@ model User {
 
   bio           String?
   experience    Int?      
+  isOnboarded   Boolean   @default(false)
   
   skills        String[]  
   assessments   Assessment[]
