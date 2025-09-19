@@ -25,37 +25,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {generateAIInsights } from "@/actions/dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 const DashboardView = ({ insights }) => {
-  // Add fallback data if insights is not available
-  if (!insights) {
-    return <div>Loading insights...</div>;
-  }
-
   // Transform salary data for the chart
-  const salaryData = insights.salaryRanges?.map((range) => ({
+  const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
     min: range.min / 1000,
     max: range.max / 1000,
     median: range.median / 1000,
-  })) || [];
-
-  // Add fallback data if no salary data
-  if (salaryData.length === 0) {
-    salaryData.push(
-      { name: "Software Engineer", min: 60, max: 120, median: 85 },
-      { name: "Senior Developer", min: 80, max: 150, median: 110 },
-      { name: "Tech Lead", min: 100, max: 180, median: 140 },
-      { name: "Product Manager", min: 90, max: 160, median: 125 },
-      { name: "Data Scientist", min: 70, max: 140, median: 105 }
-    );
-  }
+  }));
 
   const getDemandLevelColor = (level) => {
-    switch (level?.toLowerCase()) {
+    switch (level.toLowerCase()) {
       case "high":
         return "bg-green-500";
       case "medium":
@@ -68,7 +51,7 @@ const DashboardView = ({ insights }) => {
   };
 
   const getMarketOutlookInfo = (outlook) => {
-    switch (outlook?.toLowerCase()) {
+    switch (outlook.toLowerCase()) {
       case "positive":
         return { icon: TrendingUp, color: "text-green-500" };
       case "neutral":
@@ -161,7 +144,7 @@ const DashboardView = ({ insights }) => {
       </div>
 
       {/* Salary Ranges Chart */}
-      <Card>
+      <Card className="col-span-4">
         <CardHeader>
           <CardTitle>Salary Ranges by Role</CardTitle>
           <CardDescription>
@@ -169,19 +152,12 @@ const DashboardView = ({ insights }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] w-full">
+          <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salaryData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={salaryData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis 
-                  label={{ value: 'Salary (K)', angle: -90, position: 'insideLeft' }}
-                />
+                <XAxis dataKey="name" />
+                <YAxis />
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {

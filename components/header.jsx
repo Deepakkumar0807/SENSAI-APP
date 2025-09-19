@@ -47,13 +47,13 @@ const Header = async () => {
               </Button>
             </Link>
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button>
-                  <StarIcon className="h-4 w-4" />
-                  <span className="hidden md:block">Grouth Tools</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
+              <Button>
+                <StarIcon className="h-4 w-4" />
+                <span className="hidden md:block">Grouth Tools</span>
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -73,7 +73,7 @@ const Header = async () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href={"/Interview"} className="flex items-center gap-2">
+                  <Link href={"/interview"} className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4" />
                     <span>Interview Prepration</span>
                   </Link>

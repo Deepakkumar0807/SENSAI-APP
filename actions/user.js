@@ -26,14 +26,34 @@ export async function updateUser(data) {
           },
         });
 
-        // If industry doesn't exist, create it with default values
+        // If industry doesn't exist, create it with AI values (normalized)
         if (!industryInsight) {
           const insights = await generateAIInsights(data.industry);
+
+          // Normalize enums, numbers, and arrays to satisfy Prisma schema
+          const demandLevel = String(insights.demandLevel || "MEDIUM").toUpperCase();
+          const marketOutlook = String(insights.marketOutlook || "NEUTRAL").toUpperCase();
+          const growthRate = Number(insights.growthRate || 0);
+
+          const salaryRanges = Array.isArray(insights.salaryRanges)
+            ? insights.salaryRanges
+            : [];
+          const topSkills = Array.isArray(insights.topSkills) ? insights.topSkills : [];
+          const keyTrends = Array.isArray(insights.keyTrends) ? insights.keyTrends : [];
+          const recommendedSkills = Array.isArray(insights.recommendedSkills)
+            ? insights.recommendedSkills
+            : [];
 
           industryInsight = await db.industryInsight.create({
             data: {
               industry: data.industry,
-              ...insights,
+              salaryRanges,
+              growthRate,
+              demandLevel,
+              topSkills,
+              marketOutlook,
+              keyTrends,
+              recommendedSkills,
               nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             },
           });
