@@ -87,90 +87,29 @@ export async function getIndustryInsights() {
     if (!needsRepair) {
       return existing;
     }
-
-    // Build fallbacks
-  //   const fallbackSalaryRanges = [
-  //     { role: "Software Engineer", min: 60000, median: 95000, max: 150000, location: "Global" },
-  //     { role: "Data Scientist", min: 65000, median: 105000, max: 160000, location: "Global" },
-  //     { role: "Product Manager", min: 70000, median: 110000, max: 170000, location: "Global" },
-  //     { role: "UX Designer", min: 55000, median: 90000, max: 140000, location: "Global" },
-  //     { role: "DevOps Engineer", min: 65000, median: 108000, max: 165000, location: "Global" },
-  //   ];
-  //   const patched = await db.industryInsight.update({
-  //     where: { id: existing.id },
-  //     data: {
-  //       salaryRanges: existing.salaryRanges?.length ? existing.salaryRanges : fallbackSalaryRanges,
-  //       topSkills: existing.topSkills?.length ? existing.topSkills : ["JavaScript", "React", "Node.js", "SQL", "Cloud Platforms"],
-  //       keyTrends: existing.keyTrends?.length
-  //         ? existing.keyTrends
-  //         : [
-  //             "AI adoption accelerating",
-  //             "Cloud-native architectures",
-  //             "Data privacy and governance",
-  //             "Automation of workflows",
-  //             "Remote-first collaboration",
-  //           ],
-  //       recommendedSkills: existing.recommendedSkills?.length
-  //         ? existing.recommendedSkills
-  //         : [
-  //             "GenAI Prompting",
-  //             "TypeScript",
-  //             "System Design",
-  //             "Docker & Kubernetes",
-  //             "Data Visualization",
-  //           ],
-  //       lastUpdated: new Date(),
-  //       nextUpdate: existing.nextUpdate ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  //     },
-  //   });
-  //   return patched;
   }
 
   // Otherwise, generate new insights
-  // const insights = await generateAIInsights(user.industry);
+  const insights = await generateAIInsights(user.industry);
 
-  // // Normalize enums and data shape
-  // const demandLevel = String(insights.demandLevel || "MEDIUM").toUpperCase();
-  // const marketOutlook = String(insights.marketOutlook || "NEUTRAL").toUpperCase();
-  // const growthRate = Number(insights.growthRate || 0);
+  
 
-  // const salaryRanges = Array.isArray(insights.salaryRanges)
-  //   ? insights.salaryRanges
-  //   : [];
-  // const topSkills = Array.isArray(insights.topSkills) ? insights.topSkills : [];
-  // const keyTrends = Array.isArray(insights.keyTrends) ? insights.keyTrends : [];
-  // const recommendedSkills = Array.isArray(insights.recommendedSkills)
-  //   ? insights.recommendedSkills
-  //   : [];
-
-  // // Fallback dataset to avoid empty UI when AI returns nothing
-  // const fallbackSalaryRanges = [
-  //   { role: "Software Engineer", min: 60000, median: 95000, max: 150000, location: "Global" },
-  //   { role: "Data Scientist", min: 65000, median: 105000, max: 160000, location: "Global" },
-  //   { role: "Product Manager", min: 70000, median: 110000, max: 170000, location: "Global" },
-  //   { role: "UX Designer", min: 55000, median: 90000, max: 140000, location: "Global" },
-  //   { role: "DevOps Engineer", min: 65000, median: 108000, max: 165000, location: "Global" },
-  // ];
-  // const finalSalaryRanges = salaryRanges.length ? salaryRanges : fallbackSalaryRanges;
-  // const finalTopSkills = topSkills.length ? topSkills : ["JavaScript", "React", "Node.js", "SQL", "Cloud Platforms"];
-  // const finalKeyTrends = keyTrends.length ? keyTrends : [
-  //   "AI adoption accelerating",
-  //   "Cloud-native architectures",
-  //   "Data privacy and governance",
-  //   "Automation of workflows",
-  //   "Remote-first collaboration",
-  // ];
-  // const finalRecommended = recommendedSkills.length ? recommendedSkills : [
-  //   "GenAI Prompting",
-  //   "TypeScript",
-  //   "System Design",
-  //   "Docker & Kubernetes",
-  //   "Data Visualization",
-  // ];
-
-  // Save to database
-  const industryInsight = await db.industryInsight.create({
-    data: {
+  // Save to database using upsert to handle existing records
+  const industryInsight = await db.industryInsight.upsert({
+    where: {
+      industry: user.industry,
+    },
+    update: {
+      salaryRanges: finalSalaryRanges,
+      growthRate,
+      demandLevel,
+      topSkills: finalTopSkills,
+      marketOutlook,
+      keyTrends: finalKeyTrends,
+      recommendedSkills: finalRecommended,
+      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days later
+    },
+    create: {
       industry: user.industry,
       salaryRanges: finalSalaryRanges,
       growthRate,
@@ -180,7 +119,7 @@ export async function getIndustryInsights() {
       keyTrends: finalKeyTrends,
       recommendedSkills: finalRecommended,
       nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days later
-      user: {
+      users: {
         connect: { id: user.id },
       },
     },
